@@ -100,12 +100,12 @@ describe('dsh-tool-subagent', () => {
     expect(text(result)).toBe('child says hi')
   })
 
-  it('exposes description + prompt + run_in_background to the model (no provider/type parameter)', async () => {
+  it('exposes description + prompt + run_in_background + cross-model override to the model', async () => {
     const ctx = await setup({ provider: 'mock' })
     const schema = ctx.tools.schemas().find(s => s.name === 'subagent')
     expect(schema).toBeDefined()
     const props = (schema!.parameters as { properties?: Record<string, unknown> }).properties ?? {}
-    expect(Object.keys(props).sort()).toEqual(['description', 'prompt', 'run_in_background'])
+    expect(Object.keys(props).sort()).toEqual(['description', 'model', 'prompt', 'provider', 'run_in_background'])
     expect(schema!.description).toContain('job_output')
   })
 
@@ -113,8 +113,41 @@ describe('dsh-tool-subagent', () => {
     const ctx = await setup({ provider: 'mock', enableRunInBackground: false })
     const schema = ctx.tools.schemas().find(s => s.name === 'subagent')
     const props = (schema!.parameters as { properties?: Record<string, unknown> }).properties ?? {}
-    expect(Object.keys(props).sort()).toEqual(['description', 'prompt'])
+    expect(Object.keys(props).sort()).toEqual(['description', 'model', 'prompt', 'provider'])
     expect(schema!.description).not.toContain('job_output')
+  })
+
+  it('passes a per-call model/provider override through to the child start request', async () => {
+    const seen: SubagentStartRequest[] = []
+    const ctx = await setup({ provider: 'mock' }, { onStart: (request) => { seen.push(request) } })
+    const result = await callSubagent(ctx, {
+      description: 'cross-model review',
+      prompt: 'review this diff',
+      run_in_background: false,
+      model: 'kimi/kimi-k3',
+      provider: 'dashscope',
+    })
+    expect(result.isError).toBe(false)
+    expect(seen).toHaveLength(1)
+    expect(seen[0]!.agentOptions).toEqual({ model: 'kimi/kimi-k3', provider: 'dashscope' })
+  })
+
+  it('keeps the tool-default agent options when no override is supplied', async () => {
+    const seen: SubagentStartRequest[] = []
+    const ctx = await setup({ provider: 'mock', agentOptions: { provider: 'dashscope', model: 'default-model', maxTokens: 4096 } }, { onStart: (request) => { seen.push(request) } })
+    const result = await callSubagent(ctx, { description: 'd', prompt: 'p', run_in_background: false })
+    expect(result.isError).toBe(false)
+    expect(seen[0]!.agentOptions).toEqual({ provider: 'dashscope', model: 'default-model', maxTokens: 4096 })
+  })
+
+  it('refuses a model/provider override that sets only one side', async () => {
+    const ctx = await setup({ provider: 'mock' })
+    const onlyModel = await callSubagent(ctx, { description: 'd', prompt: 'p', model: 'kimi/kimi-k3' })
+    expect(onlyModel.isError).toBe(true)
+    expect(text(onlyModel)).toContain('model` and `provider` must be set together')
+    const onlyProvider = await callSubagent(ctx, { description: 'd', prompt: 'p', provider: 'dashscope' })
+    expect(onlyProvider.isError).toBe(true)
+    expect(text(onlyProvider)).toContain('model` and `provider` must be set together')
   })
 
   it('refuses a forced run_in_background at execution time when the instance disables it', async () => {

@@ -332,6 +332,14 @@ export function apply(ctx: Context, config: Config): void {
               : 'Whether to run as a background job and return its id. Defaults to false; collect with job_output or stop with job_kill.',
           },
         } : {},
+        model: {
+          type: 'string' as const,
+          description: 'Optional model id this child runs on, overriding the tool default. Use a model from a DIFFERENT vendor than the current session for a cross-model perspective (e.g. kimi or GLM routes from the model selector). Must be set together with `provider`.',
+        },
+        provider: {
+          type: 'string' as const,
+          description: 'Optional LLM provider route for `model` (the route id shown in the model selector). Must be set together with `model`; setting only one is an error.',
+        },
       },
       output: {
         schema: {
@@ -383,11 +391,20 @@ export function apply(ctx: Context, config: Config): void {
         }
 
         const maxDepth = typeof config.maxDepth === 'number' ? config.maxDepth : undefined
+        const overrideRequested = args.model !== undefined || args.provider !== undefined
+        if (overrideRequested && (args.model === undefined || args.provider === undefined)) {
+          throw new Error('subagent tool: `model` and `provider` must be set together')
+        }
+        const agentOptions = {
+          ...config.agentOptions !== undefined ? config.agentOptions : {},
+          ...args.model !== undefined ? { model: args.model } : {},
+          ...args.provider !== undefined ? { provider: args.provider } : {},
+        }
         const request = {
           label: args.description,
           prompt: [{ type: 'text', text: args.prompt }] as ContentBlock[],
           parent,
-          ...config.agentOptions !== undefined ? { agentOptions: config.agentOptions } : {},
+          ...Object.keys(agentOptions).length > 0 ? { agentOptions } : {},
           ...config.persona !== undefined ? { persona: config.persona } : {},
           ...config.toolFilter !== undefined ? { toolFilter: config.toolFilter } : {},
           ...maxDepth !== undefined ? { maxDepth } : {},
