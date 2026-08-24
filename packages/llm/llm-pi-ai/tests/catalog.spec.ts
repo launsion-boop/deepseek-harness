@@ -780,6 +780,23 @@ describe('compat switches', () => {
     expect(models.get('dialect-odd')?.compat).toEqual({ thinkingFormat: 'openai', supportsReasoningEffort: false })
   })
 
+  it('carries the developer-role switch from the route and the entry', () => {
+    const models = modelsOf({
+      'acme-gateway': {
+        api: 'openai-completions',
+        baseURL: 'https://acme.test',
+        compat: { supportsDeveloperRole: false },
+        models: [
+          { id: 'role-route', reasoningEfforts: { high: 'high' } },
+          { id: 'role-entry', reasoningEfforts: { high: 'high' }, compat: { supportsDeveloperRole: true } },
+        ],
+      },
+    }, 'acme-gateway')
+
+    expect(models.get('role-route')?.compat).toEqual({ supportsDeveloperRole: false })
+    expect(models.get('role-entry')?.compat).toEqual({ supportsDeveloperRole: true })
+  })
+
   it('merges the switches over the catalog entry’s own compat instead of replacing it', () => {
     const [catalogModel] = getBuiltinModels('deepseek')
     if (catalogModel === undefined) throw new Error('the installed catalog ships no deepseek model')
