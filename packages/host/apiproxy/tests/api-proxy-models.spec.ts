@@ -496,4 +496,44 @@ describe('Web session model selection', () => {
       .not.toContain('deleted-gateway/deleted-model')
     await ctx.fiber.dispose()
   })
+
+  it('mirrors a fenced subagent session\'s own logged model in the directory', async () => {
+    const { ctx } = await harness()
+    const parent = ctx.sessions.create()
+    const child = ctx.sessions.create(undefined, {
+      meta: { cwd: '/tmp', parentSession: parent.id, origin: 'subagent' },
+    })
+    child.append('request/header', {
+      header: { config: { provider: 'deepseek-official', model: 'deepseek-reasoner' } },
+      reason: 'initial',
+    })
+    ctx.agents.register({
+      id: child.id,
+      session: child,
+      status: 'running',
+      ctx,
+      inbox: { nextTurn: [], nextStep: [] },
+    } as unknown as Agent)
+    const api = createApiProxy(ctx, {
+      defaultModelSelection: () => ({ provider: 'deepseek-official', model: 'deepseek-chat' }),
+      cwd: '/tmp',
+    })
+
+    // Generic Agent routing stays fenced for the child identity, yet the
+    // directory serves the child's own logged model for the read-only seat.
+    const catalog = expectValue(await api.sessions.models(request({ sessionId: child.id })))
+    expect(catalog.current).toEqual({ provider: 'deepseek-official', model: 'deepseek-reasoner' })
+    expect(catalog.routable).toBe(true)
+    // Selecting through the fence remains refused.
+    const selected = await api.sessions.selectModel(request({
+      sessionId: child.id,
+      provider: 'deepseek-official',
+      model: 'deepseek-chat',
+    }))
+    expect(selected.result).toMatchObject({
+      ok: false,
+      error: { code: 'agent-busy' },
+    })
+    await ctx.fiber.dispose()
+  })
 })

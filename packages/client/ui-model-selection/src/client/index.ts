@@ -164,7 +164,9 @@ export function apply(ctx: ClientContext): void {
           available,
           directory: directory.store,
           load: () => {
-            if (available) directory.load().catch(() => { /* surfaced on the store */ })
+            // Read-only sessions (addressed subagents) load too: their seat
+            // shows the child's actual model without offering selection.
+            directory.load().catch(() => { /* surfaced on the store */ })
           },
           select: (selection: ModelSelection) => available
             ? directory.select(selection).then(() => true, () => false)

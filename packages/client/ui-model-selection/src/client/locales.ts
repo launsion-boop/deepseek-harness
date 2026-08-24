@@ -27,6 +27,9 @@ export const zh = {
   'empty.models': '没有可用的模型。',
   'blocked.composer': '当前模型不可用，请先选择模型',
   'empty.efforts': '当前模型未提供推理等级。',
+  'subagent.locked': '子 agent 运行固定模型，不可在此切换',
+  'subagent.lockedAria': '子 agent 固定模型 {model}，不可切换',
+  'subagent.unknown': '模型',
 } satisfies Record<string, string>
 
 /** The model namespace key union. */
@@ -51,4 +54,7 @@ export const en = {
   'empty.models': 'No models available.',
   'blocked.composer': 'This model is unavailable — select one to continue',
   'empty.efforts': 'This model provides no reasoning effort levels.',
+  'subagent.locked': 'Subagent sessions run a fixed model — switching is unavailable here',
+  'subagent.lockedAria': 'Subagent fixed model {model}; not switchable',
+  'subagent.unknown': 'Model',
 } satisfies Record<ModelKey, string>

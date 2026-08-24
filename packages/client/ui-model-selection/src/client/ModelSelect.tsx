@@ -108,12 +108,12 @@ export function ModelSelect(
   }
 
   // Mount-time load resolves the trigger label; every open refreshes.
+  // Addressed subagent sessions load read-only so their seat can show the
+  // child's actual model instead of an empty control.
   useEffect(() => {
-    if (available) {
-      lastActionRef.current = 'load'
-      load()
-    }
-  }, [available, load])
+    lastActionRef.current = 'load'
+    load()
+  }, [load])
 
   useEffect(() => {
     if (!open) return
@@ -124,7 +124,31 @@ export function ModelSelect(
     return () => { document.removeEventListener('mousedown', closeOutside) }
   }, [open])
 
-  if (!available) return null
+  if (!available) {
+    // Addressed subagent session: a fixed, non-interactive seat that mirrors
+    // the model the child actually runs (read from the shared directory).
+    const fixedLabel = state.current === null
+      ? t('subagent.unknown')
+      : currentChoice?.model.name ?? state.current.model
+    const fixedAria = state.current === null
+      ? t('subagent.locked')
+      : t('subagent.lockedAria', { model: fixedLabel })
+    return (
+      <div className={css.root}>
+        <button
+          ref={triggerRef}
+          type="button"
+          className={css.trigger}
+          aria-label={fixedAria}
+          title={t('subagent.locked')}
+          disabled
+        >
+          <span className={css.triggerLabel}>{fixedLabel}</span>
+          {effortLabel !== undefined && <span className={css.triggerEffort}>{effortLabel}</span>}
+        </button>
+      </div>
+    )
+  }
 
   const show = (): void => {
     setPane('root')

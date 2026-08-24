@@ -61,7 +61,8 @@ export class ModelDirectory {
    * @returns the fresh directory value.
    */
   async load(): Promise<SessionModels> {
-    this.assertAvailable()
+    // Loads are read-only and stay available for addressed subagent sessions:
+    // their seat displays the child's actual model without offering selection.
     const generation = ++this.generation
     this.store.update((s) => { s.status = 'loading'; s.error = null })
     const { result } = await this.sessions.models({ sessionId: this.sessionId })

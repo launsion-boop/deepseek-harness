@@ -1449,6 +1449,39 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
     return { id: inspected.meta.id, header: inspected.meta, events: inspected.events }
   }
 
+  /** Read-only model mirror for subagent-owned sessions, whose identities are
+   * fenced from generic Agent routing: the child's own latest logged
+   * request/header config, live-folded when attached, persisted otherwise. */
+  async function subagentLoggedSelection(sessionId: SessionId): Promise<ModelSelection | undefined> {
+    const attached = ctx.sessions.get(sessionId)
+    const liveConfig = attached?.requestHeader()?.config
+    const persistedConfig = await (async () => {
+      try {
+        const state = await readSessionState(sessionId)
+        for (let index = state.events.length - 1; index >= 0; index--) {
+          const event = state.events[index]
+          if (event === undefined || event.type !== 'request/header') continue
+          const config = (event.data as {
+            header?: { config?: { provider?: string; model?: string; reasoningEffort?: ReasoningEffortId } }
+          } | undefined)?.header?.config
+          if (config !== undefined) return config
+        }
+      } catch {
+        // Persistence-less deployments keep the ownership error below.
+      }
+      return undefined
+    })()
+    const config = liveConfig ?? persistedConfig
+    if (config === undefined || config.provider === undefined || config.model === undefined) return undefined
+    return {
+      provider: config.provider,
+      model: config.model,
+      ...config.reasoningEffort === undefined
+        ? {}
+        : { reasoningEffort: config.reasoningEffort },
+    }
+  }
+
   /** Resolve the Workspace inherited by a fork without making ordinary loose lineage grouped. */
   async function forkWorkspace(source: Pick<Session, 'id' | 'header'>): Promise<Workspace | undefined> {
     const workspaces = ctx.workspaceRegistry.list()
@@ -2184,7 +2217,17 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
       async models(request) {
         const { sessionId } = request.payload
         const found = await agentFor(sessionId)
-        if ('error' in found) return err(request, found.error)
+        if ('error' in found) {
+          // Subagent-owned sessions are fenced from generic Agent routing;
+          // their composer seat still mirrors the child's actual model,
+          // read-only, from the child's own logged request/header.
+          if (!/owned by subagent routing/.test(found.error.message)) return err(request, found.error)
+          const logged = await subagentLoggedSelection(sessionId)
+          if (logged === undefined) return err(request, found.error)
+          const { groups, failures } = await buildModelCatalog(ctx)
+          const routable = routeServed(logged.provider)
+          return ok(request, { current: { ...logged }, routable, groups, failures })
+        }
         const current = selectionFor(found.agent).current
         const { groups, failures } = await buildModelCatalog(ctx)
         const routable = routeServed(current.provider)

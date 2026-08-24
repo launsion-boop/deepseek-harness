@@ -300,7 +300,7 @@ describe('ui-model-selection dual entry', () => {
     expect(() => b.seat().inject!(sid('ghost'))).toThrow(/resolved no scope/)
   })
 
-  it('withholds both model entries from addressed subagent sessions without Agent-bound RPCs', async () => {
+  it('serves a read-only model face for addressed subagent sessions without Agent-bound selection RPCs', async () => {
     const b = await bench()
     b.mint('child')
     b.address(sid('child'))
@@ -315,14 +315,16 @@ describe('ui-model-selection dual entry', () => {
     expect(face.available).toBe(false)
     face.load()
     await expect(face.select({ provider: 'deepseek', model: 'deepseek-v4-pro' })).resolves.toBe(false)
+    // Read-only loads still read the host's current selection for the seat…
     await expect(b.ctx.modelDirectories.directoryFor(sid('child')).load())
-      .rejects.toThrow(/unavailable for addressed subagent/)
+      .resolves.toMatchObject({ current: { provider: 'deepseek-official', model: 'deepseek-v4-flash' } })
+    // …but selecting stays rejected.
     await expect(b.ctx.modelDirectories.directoryFor(sid('child')).select({
       provider: 'deepseek',
       model: 'deepseek-v4-pro',
     })).rejects.toThrow(/unavailable for addressed subagent/)
     b.ctx.emit('connection/reset')
     await Promise.resolve()
-    expect(b.calls).toEqual({ models: 0, select: 0 })
+    expect(b.calls).toEqual({ models: 2, select: 0 })
   })
 })
