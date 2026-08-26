@@ -165,10 +165,9 @@
       name: '@deepseek-ai/dsh-client-connection'
       inject: [webRuntime]
       config:
-        # LAN literals derived from the active bind plus --trusted-host extras.
-        # A deployment adding authorities keeps this expression and concatenates
-        # its literals, for example: ['app.internal', ...ctx.webRuntime.trustedHosts].
-        trustedHosts: !!js ctx.webRuntime.trustedHosts
+        # LAN literals derived from the active bind plus --trusted-host extras,
+        # plus the public relay authority (phone access via the ALB domain).
+        trustedHosts: !!js "['dsh.echobraid.ai', ...ctx.webRuntime.trustedHosts]"
 
     - id: api-remotes
       name: '@deepseek-ai/dsh-api-remotes'
@@ -443,3 +442,10 @@
       name: '@deepseek-ai/dsh-agent-presets'
       config:
         default: standard
+
+# Mobile workbench for the Web shell (ported from jasondu/dsh-ui-mobile):
+# off-canvas sidebar/details drawers, touch-first composer, PWA install +
+# completion push — active below 768px, desktop layout untouched.
+- insert:
+    - id: ui-mobile
+      name: '@deepseek-ai/dsh-client-ui-mobile'

@@ -1,0 +1,220 @@
+/**
+ * Global responsive sheet for the shell frame (side-effect import — the class
+ * map is unused). Targets stable data attributes only: the frame's column
+ * classes are CSS-module hashed and therefore unreachable from another plugin.
+ * ui-mobile stamps `data-mobile-frame` / `data-mobile-role` itself; the
+ * collapse attributes belong to AppFrame.
+ *
+ * Breakpoint: phone tier below 768px. Between 768px and the shell's own
+ * 1024px sidebar auto-collapse the existing three-column concession chain
+ * already degrades gracefully, so this sheet does not touch it.
+ */
+
+@media (max-width: 767px) {
+  /* Android standalone windows draw edge-to-edge: keep the frame's top
+     chrome clear of the status bar / camera cutout. iOS standalone uses
+     status-bar-style black, which already lays the viewport below the bar,
+     so its inset reads zero here. */
+  @media (display-mode: standalone) {
+    [data-mobile-frame] {
+      padding-top: env(safe-area-inset-top);
+    }
+  }
+
+  /* The shell's full-height mount tracks the visible viewport on mobile
+     (URL-bar show/hide, on-screen keyboard). */
+  html,
+  body,
+  #root {
+    height: 100dvh;
+  }
+
+  /* In an iOS standalone window the status-bar/Island area is part of the
+     covered viewport. Header chrome is transparent and sits on the base
+     surface, so paint that same theme-aware base onto the page canvas. */
+  html,
+  body {
+    background: var(--dsw-alias-bg-base);
+  }
+
+  body {
+    /* Keep the app's own scroll containers in control of pull gestures. */
+    overscroll-behavior-y: none;
+    /* iOS reflows/zooms text after orientation changes unless told not to. */
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* The host tooltips are designed for desktop hover. On iOS a tap focuses
+     the icon button and surfaces the same bubble ("命令" / "发送消息") as a
+     distracting toast; labels remain available through aria-label. */
+  [role='tooltip'] {
+    display: none !important;
+  }
+
+  /* Single-column frame: the conversation fills the screen. The inline px
+     grid template loses to !important here; the drawers below are taken out
+     of grid flow entirely. */
+  [data-mobile-frame] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  /* Drag handles are pointer affordances; the nav bar's buttons replace them. */
+  [data-mobile-frame] > [data-side] {
+    display: none;
+  }
+
+  /* ── sidebar: off-canvas drawer from the left ─────────────────────────── */
+  [data-mobile-role='sidebar'] {
+    position: fixed !important;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    /* Compact phone drawer: session rows stay readable without leaving a
+       broad, unused gutter beside the sidebar's desktop-oriented content. */
+    width: min(78vw, 300px);
+    transform: translateX(-102%);
+    transition: transform 240ms var(--ds-ease-in-out, ease);
+    box-shadow: 0 0 32px rgb(0 0 0 / 0.35);
+  }
+
+  [data-mobile-frame]:not([data-sidebar-collapsed]) > [data-mobile-role='sidebar'] {
+    transform: translateX(0);
+  }
+
+  /* The sidebar shell freezes an inline width for its desktop slide; inside
+     the fixed drawer it must fill the drawer instead. */
+  [data-mobile-role='sidebar'] > * {
+    width: 100% !important;
+  }
+
+  /* ── details: full-height drawer from the right ───────────────────────── */
+  [data-mobile-role='details'] {
+    position: fixed !important;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 40;
+    width: min(100vw, 480px);
+    transform: translateX(102%);
+    transition: transform 240ms var(--ds-ease-in-out, ease);
+    box-shadow: 0 0 32px rgb(0 0 0 / 0.35);
+  }
+
+  [data-mobile-frame]:not([data-details-collapsed]) > [data-mobile-role='details'] {
+    transform: translateX(0);
+  }
+
+  /* The center column reserves the bottom strip the nav bar floats in, so
+     the composer (a flex child at the column's bottom edge) sits above it. */
+  [data-mobile-role='center'] {
+    /* The composer docks to the screen bottom; the transcript scroller
+       reserves the seat's own height via --dsh-composer-height, so no
+       extra strip is needed here. */
+    padding-bottom: 0;
+  }
+
+  /* ── composer stays put when the transcript overscrolls ──────────────────
+     The composer seat ([data-composer-seat]) lives INSIDE the transcript
+     scroller ([data-conversation-scroll]) as a sticky bottom element
+     (ui-conversation's ConversationRoot). When the scroller hits its top or
+     bottom edge, iOS rubber-bands the scroller's content — and a sticky
+     element, being part of that content, rides along (the composer visibly
+     jumps up). Two moves keep it anchored:
+
+     1. overscroll-behavior: contain — supported browsers (Android Chrome,
+        Edge, Firefox) stop the edge gesture from chaining up to the page,
+        so the page no longer bounces as a whole (body already sets
+        overscroll-behavior-y: none).
+     2. position: fixed — iOS Safari does NOT support overscroll-behavior,
+        but a fixed element anchors to the viewport and is never displaced
+        by rubber-banding (of any ancestor scroller). Moving the seat out of
+        layout flow requires the scroller to reserve the seat's height, which
+        ConversationRoot already publishes as --dsh-composer-height.
+  */
+  [data-mobile-role='center'] [data-conversation-scroll] {
+    overscroll-behavior-y: contain;
+  }
+
+  [data-mobile-role='center'] [data-composer-seat] {
+    /* !important is load-bearing on every declared property: ui-conversation's
+       `.root[data-phase='active'] .composerSeat` (specificity 0,3,0) outranks
+       this selector (0,2,0) and sets position: sticky, bottom: 0, z-index: 7.
+       Without the flags the seat lands at bottom: 0 under the nav bar (which
+       lives in the z-20 overlay layer) — the bar visibly covers the input. */
+    position: fixed !important;
+    left: 0;
+    right: 0;
+    /* Docks to the screen bottom: there is no bottom bar anymore, and the
+       transcript scroller reserves the seat's height via
+       --dsh-composer-height. */
+    bottom: 0 !important;
+    /* Above the nav bar (z 30) so a 1px seam can never cover the seat's edge;
+       still below the drawer scrim (z 35). */
+    z-index: 31 !important;
+  }
+
+  /* The fixed seat no longer occupies layout space: reserve its live height
+     (ConversationRoot's seat observer keeps --dsh-composer-height current on
+     this very element) so the last message never hides behind the input. */
+  [data-mobile-role='center'] [data-conversation-scroll] {
+    padding-bottom: var(--dsh-composer-height, 152px);
+  }
+
+  /* The host transcript keeps the desktop composition rule of composer
+     clearance + 16px on each side (32px at the default). On a phone that
+     leaves the chat unnecessarily narrow, so widen only the message flow to
+     a comfortable 12px edge inset. The composer keeps its existing clearance. */
+  [data-mobile-role='center'] [data-chat-flow] {
+    width: calc(100% + 40px);
+    margin-right: -20px;
+    margin-left: -20px;
+  }
+
+  /* iOS zooms focused inputs smaller than 16px — force readable type so the
+     composer and search fields keep their layout when focused. */
+  [data-mobile-role='center'] input,
+  [data-mobile-role='center'] textarea,
+  [data-mobile-role='center'] select {
+    font-size: 16px;
+  }
+
+  /* Kill the legacy 300ms double-tap zoom delay on interactive elements. */
+  [data-mobile-role='center'] button {
+    touch-action: manipulation;
+  }
+
+  /* The export capsule is desktop utility chrome. Phone sessions keep the
+     title row focused on navigation; the slash command remains available. */
+  [data-mobile-role='center'] [data-session-log-download] {
+    display: none;
+  }
+
+  /* Flatten only the composer toolbar's structural wrappers on phones. This
+     lets the access-mode trigger become the final flex item without changing
+     the desktop DOM or slot order; it remains after Send/Stop at the far
+     right, while the rest of the controls retain their source order. */
+  [data-composer-toolbar] {
+    gap: 8px;
+  }
+
+  [data-composer-tools],
+  [data-composer-modes],
+  [data-composer-trailing] {
+    display: contents;
+  }
+
+  [data-composer-toolbar] [data-input-access-mode] {
+    order: 1;
+    margin-left: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-mobile-role='sidebar'],
+    [data-mobile-role='details'] {
+      transition: none;
+    }
+  }
+}

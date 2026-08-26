@@ -51,14 +51,18 @@ export const CLAUDE_AGENT_SDK_PACKAGE = '@anthropic-ai/claude-agent-sdk'
 const CLAUDE_PLATFORM_PACKAGE_PREFIX = `${CLAUDE_AGENT_SDK_PACKAGE}-`
 const CLAUDE_PLATFORM_DECLARED_LICENSE = 'SEE LICENSE IN LICENSE.md'
 
+/** Push-delivery runtime dependency covered by the owner's MPL-2.0 note. */
+const WEB_PUSH_PACKAGE = 'web-push'
+
 /**
  * Whether a non-permissive runtime declaration has an identity-scoped owner
  * authorization. This does not reclassify its terms as permissive.
  * @param name - exact npm package identity.
- * @returns true only for the official Claude Agent SDK package.
+ * @returns true only for the official Claude Agent SDK package and for
+ * `web-push` (see the distribution note in the rendered document).
  */
 export function isOwnerAuthorizedRuntime(name: string): boolean {
-  return name === CLAUDE_AGENT_SDK_PACKAGE
+  return name === CLAUDE_AGENT_SDK_PACKAGE || name === WEB_PUSH_PACKAGE
 }
 
 /**
@@ -657,6 +661,21 @@ ${rows.join('\n')}
 }
 
 /**
+ * The owner-authorized note for the push-delivery dependency: MPL-2.0 is
+ * file-level weak copyleft and `web-push` ships unmodified as a separate
+ * package, so the harness's own sources stay under MIT while the web-push
+ * files keep their MPL-2.0 terms.
+ */
+function renderWebPushNote(deps: readonly ExternalDep[]): string {
+  if (!deps.some(dep => dep.name === WEB_PUSH_PACKAGE)) return ''
+  return `
+## Owner-authorized MPL-2.0 runtime dependency
+
+The project owner authorizes the distribution of [\`web-push\`](https://www.npmjs.com/package/web-push) under its declared **MPL-2.0** terms as an unmodified, separately packaged runtime dependency of the Web shell's push-delivery surface. MPL-2.0 is file-level weak copyleft: the web-push sources remain MPL-2.0, and no web-push file is modified or vendored into the DeepSeek Harness sources. This authorization does not classify the terms as permissive and does not cover any other package; version or license changes still require the ordinary dependency, lockfile, compatibility, terms, and notices review.
+`
+}
+
+/**
  * Render the complete notices document.
  * @returns the exact bytes `THIRD_PARTY_NOTICES.md` must hold.
  */
@@ -714,6 +733,7 @@ pnpm applies local patches to the following packages at install time, so shipped
 
 ${patchedLines.join('\n')}
 ${renderClaudeDistribution(claudeDistribution)}
+${renderWebPushNote(runtimeDeps)}
 
 ## Development-only npm dependencies
 
