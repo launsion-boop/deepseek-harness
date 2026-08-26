@@ -11,14 +11,15 @@
  */
 
 @media (max-width: 767px) {
-  /* Android standalone windows draw edge-to-edge: keep the frame's top
-     chrome clear of the status bar / camera cutout. iOS standalone uses
-     status-bar-style black, which already lays the viewport below the bar,
-     so its inset reads zero here. */
-  @media (display-mode: standalone) {
-    [data-mobile-frame] {
-      padding-top: env(safe-area-inset-top);
-    }
+  /* Keep the frame's top chrome clear of the status bar / camera cutout.
+     env(safe-area-inset-top) is the real overlap height whenever the webview
+     draws edge-to-edge (iOS standalone under any status-bar-style, Android
+     standalone), and zero when the layout already starts below the bar — so
+     the rule is unconditional and only ever adds the actual missing inset.
+     Installed iOS PWAs can bake the display settings from install time, which
+     the meta-based status-bar style cannot override; the padding always can. */
+  [data-mobile-frame] {
+    padding-top: max(env(safe-area-inset-top), 0px);
   }
 
   /* The shell's full-height mount tracks the visible viewport on mobile
