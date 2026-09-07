@@ -18,6 +18,32 @@ The service worker owns install activation, notification delivery, and notificat
 
 The public relay authority is deployment configuration. A relay launch passes `--trusted-host`; the package and Web bundle do not hardcode a deployment domain.
 
+## Local fork upstream adaptation map
+
+This section is the maintained marker for the `leilangsheng/deepseek-harness` fork. Rewrite this snapshot after every upstream subscription; do not append a second migration log.
+
+- **Upstream baseline:** `deepseek-ai/deepseek-harness@b0a7d2ce3b4c19d7452e364b2d7acbfa87e707ed`.
+- **Adaptation merge:** `c1557f091752a59fdfcc89471023da241827191f`; rollback tag `dsh-local-pre-upstream-20260907` retains the previous fork tip.
+- **Fork-owned product surfaces:** `packages/client/ui-mobile/**`, its `dsh-web-app` bundle row, phone assembly tests, and the addressed-subagent read-only model badge in `packages/client/ui-model-selection/**`.
+- **Upstream-owned reliability surfaces:** synchronous submission echo and durable replacement, request idempotency, reconnect/backoff, history repair, and durable inbox recovery. Do not restore the fork's superseded implementations when upstream changes these contracts.
+- **Required invariants:** phone layout applies only below 640 px; installed iOS uses safe-area placement; the service worker has no `fetch` handler and removes legacy `dsh-ui-mobile-shell-*` caches; addressed subagents expose model identity without enabling model selection; deployment authorities remain outside the product bundle.
+
+The first semantic-conflict pass for the next subscription is the sorted intersection of upstream-touched and fork-touched paths from the recorded baseline:
+
+```sh
+git fetch origin master fork master --tags
+base=b0a7d2ce3b4c19d7452e364b2d7acbfa87e707ed
+git diff --name-only "$base"..origin/master | sort > /tmp/dsh-upstream-paths
+git diff --name-only "$base"..fork/master | sort > /tmp/dsh-fork-paths
+comm -12 /tmp/dsh-upstream-paths /tmp/dsh-fork-paths
+```
+
+Always inspect these semantic hotspots even when Git reports no textual conflict: Client Modules boot-document and revision policy; browser token/cookie authentication; Session Controller submission and reconnect projections; `packages/bundle/web-app/cordis.patch.yml`; `packages/client/ui-mobile/**`; `packages/client/ui-model-selection/**`; Client slot catalogs; assembled Web tests; generated catalogs, translation manifests, and notices.
+
+The relay remains an external deployment boundary. The source-built DSH service keeps the existing `DSH_HOME`; `ai.deepseek.dsh` launches the selected checkout with `--trusted-host`; `com.agenthub.dsh-relay` owns the reverse tunnel; `com.agenthub.dsh-token-sync` transfers the current launch token to the relay over SSH; and the relay auth service exchanges that token for the official DSH browser cookie on the server side. Never copy token values, cookies, passwords, or session data into this repository. If upstream changes browser authentication, validate this exchange before exposing the new build.
+
+Before updating this marker, rerun focused mobile/model tests, build, typecheck, lint, constraints, hygiene, documentation sync, GUI tests, assembled Web replay, a copied-`DSH_HOME` restart test, and public phone-width login/load/send/refresh/reconnect QA. Record `NOT_RUN` or `UNKNOWN` instead of treating an unavailable public or device check as a pass.
+
 ## Alternatives considered
 
 **Keep a network-first boot-document fallback.** A cached boot document can reference a process revision that the current Host must reject. Reload heuristics still leave a version-skew window, while removing fetch interception uses the Host's existing revision and caching rules directly.
