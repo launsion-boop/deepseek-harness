@@ -114,7 +114,29 @@ export function ModelSelect(
     return () => { document.removeEventListener('mousedown', closeOutside) }
   }, [open])
 
-  if (!available) return null
+  if (!available) {
+    const fixedLabel = state.current === null
+      ? t('subagent.unknown')
+      : currentChoice?.model.name ?? state.current.model
+    const fixedAria = state.current === null
+      ? t('subagent.locked')
+      : t('subagent.lockedAria', { model: fixedLabel })
+    return (
+      <div className={css.root}>
+        <button
+          ref={triggerRef}
+          type="button"
+          className={css.trigger}
+          aria-label={fixedAria}
+          title={t('subagent.locked')}
+          disabled
+        >
+          <span className={css.triggerLabel}>{fixedLabel}</span>
+          {effortLabel !== undefined && <span className={css.triggerEffort}>{effortLabel}</span>}
+        </button>
+      </div>
+    )
+  }
 
   const show = (): void => {
     setPane('root')

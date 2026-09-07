@@ -458,3 +458,10 @@
       name: '@deepseek-ai/dsh-agent-presets'
       config:
         default: standard
+
+# Mobile workbench for the Web shell (ported from jasondu/dsh-ui-mobile):
+# off-canvas sidebar/details drawers, touch-first composer, PWA install +
+# completion push — active below 768px, desktop layout untouched.
+- insert:
+    - id: ui-mobile
+      name: '@deepseek-ai/dsh-client-ui-mobile'

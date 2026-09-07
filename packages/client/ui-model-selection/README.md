@@ -43,7 +43,7 @@ When the Host reports that no adapter serves the session's route, this plugin ra
 <details>
 <summary>Implementation internals — click to expand</summary>
 
-Two entries over ONE per-session directory owned by `ModelDirectoryResolver` (`ctx.modelDirectories`): the `/model` popupSelect contribution (registered through `ctx.commandUi`) and the composer's named `conversation.input.model` seat both load the session's advisory directory through `session.models` and submit through `session.selectModel` via the same `ModelDirectory` instance, so a switch made in either entry is what the other shows next. Directory loads and selections share a generation counter so an older response never overwrites a newer one; a connection reset drops every resident projection and repulls the Host-restored selection. Directories are per-session, resolved lazily, and disposed with the session scope; addressed subagent sessions expose neither entry. Every resident directory refetches directly on forwarded `llm/adapters-updated` and `settings/document-updated` owner events.
+Two entries share one per-session directory owned by `ModelDirectoryResolver` (`ctx.modelDirectories`): the `/model` popupSelect contribution (registered through `ctx.commandUi`) and the composer's named `conversation.input.model` seat combine the Host-generation catalog with the Session's durable model-selection projection and submit through `session.selectModel` via the same `ModelDirectory` instance, so a switch made in either entry is what the other shows next. Directory loads and selections use generation ordering so an older response never overwrites a newer one; a connection reset replaces catalog and projection state from the recovered Host generation. Directories are per-session, resolved lazily, and disposed with the Session scope. An addressed subagent hides `/model` and renders the composer seat as a disabled badge from its durable projection, without offering an Agent-bound selection action. The shared catalog refreshes on forwarded `llm/adapters-updated`, `settings/document-updated`, and `credentials/reference-updated` owner events.
 
 </details>
 
@@ -77,7 +77,7 @@ Switching the route can reduce or invalidate provider-side cache reuse for subse
 
 These limits define the current model surface. They are current package constraints, not a general model-router comparison or a task backlog.
 
-- **No create-time or addressed-subagent selection** — both entries require an existing ordinary session's Agent; there is no draft-phase model choice to fold into session creation, and subagent continuation deliberately exposes no independent model-selection contract.
+- **No create-time or addressed-subagent selection** — both mutation entries require an existing ordinary Session's Agent; there is no draft-phase model choice to fold into Session creation, and an addressed subagent exposes only its disabled current-model badge.
 - **Directory names are presentation-only** — selection and persistence use provider/model/effort ids; a provider whose catalog or exact-model metadata lookup fails lists as an unselectable failure row until reload.
 - **No arbitrary effort input** — the composer offers only the exact model's adapter-advertised levels; an adapter without reasoning metadata leaves the Effort row absent.
 

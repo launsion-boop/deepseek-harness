@@ -473,11 +473,10 @@ async function bootEmptyPreview(origin: string, browser: Browser): Promise<void>
     })
     expect(sessionCount).toBe(0)
     expect(pageErrors.map(error => error.message)).toEqual([])
-    // Two accepted static-host 404s, sorted (the boot fetches race): the HMR
-    // event stream has no server here, and the open-in-app availability read
-    // has no host routes — the controller publishes an empty list and the
-    // header renders no button, which is that surface's designed degradation.
-    expect([...failedResponses].sort()).toEqual(['/open-in-app/apps', '/plugins/events'])
+    // Three accepted static-host 404s, sorted (the boot fetches race): the HMR
+    // event stream, open-in-app availability read, and optional Web Push config
+    // have no host routes in the preview. Their Client surfaces stay idle.
+    expect([...failedResponses].sort()).toEqual(['/open-in-app/apps', '/plugins/events', '/pwa/push/config'])
     expect(consoleErrors.filter(line => !line.includes('Failed to load resource: the server responded with a status of 404')))
       .toEqual([])
   } catch (error) {

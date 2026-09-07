@@ -363,7 +363,7 @@ describe('ui-model-selection dual entry', () => {
     expect(() => b.seat().inject!(sid('ghost'))).toThrow(/resolved no scope/)
   })
 
-  it('withholds both model entries from addressed subagent sessions without Agent-bound RPCs', async () => {
+  it('keeps selection unavailable while exposing a read-only composer face for addressed subagents', async () => {
     const b = await bench()
     b.mint('child')
     b.address(sid('child'))

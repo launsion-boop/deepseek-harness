@@ -200,7 +200,7 @@ describe('ModelSelect reasoning effort', () => {
     expect(screen.queryByRole('button', { name: '重试' })).toBeNull()
   })
 
-  it('renders no Agent-bound control for an addressed subagent session', () => {
+  it('renders a fixed read-only seat for an addressed subagent session', () => {
     const load = vi.fn()
     render(<ModelSelect
       locked={false}
@@ -211,7 +211,9 @@ describe('ModelSelect reasoning effort', () => {
       t={t}
     />)
 
-    expect(screen.queryByRole('button')).toBeNull()
+    const trigger = screen.getByRole('button', { name: '子 agent 固定模型 DeepSeek-V4-Flash，不可切换' })
+    expect((trigger as HTMLButtonElement).disabled).toBe(true)
+    expect(trigger.textContent).toContain('DeepSeek-V4-Flash')
     expect(load).not.toHaveBeenCalled()
   })
 })

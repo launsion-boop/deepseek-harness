@@ -39,5 +39,6 @@
 - button "Add attachment" [disabled]:
   - img
 - 'button "Access mode, current: Custom" [disabled]': Custom
+- button "Subagent fixed model DeepSeek-V4-Flash; not switchable" [disabled]: DeepSeek-V4-Flash
 - button "Stop generating"
 - button "Send message" [disabled]

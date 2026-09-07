@@ -108,6 +108,7 @@ External packages that a workspace package resolves at runtime. The tier covers 
 | [`typescript`](https://github.com/microsoft/TypeScript) | Apache-2.0 |
 | [`undici`](https://github.com/nodejs/undici) | MIT |
 | [`use-sync-external-store`](https://github.com/facebook/react) | MIT |
+| [`web-push`](https://github.com/web-push-libs/web-push) | MPL-2.0 |
 | [`ws`](https://github.com/websockets/ws) | MIT |
 | [`yaml`](https://github.com/eemeli/yaml) | ISC |
 | [`zod`](https://github.com/colinhacks/zod) | MIT |
@@ -134,6 +135,11 @@ The installed SDK 0.3.241 declares the following optional platform packages. Eac
 | [`@anthropic-ai/claude-agent-sdk-linux-x64-musl`](https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk-linux-x64-musl) | 0.3.241 | SEE LICENSE IN LICENSE.md |
 | [`@anthropic-ai/claude-agent-sdk-win32-arm64`](https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk-win32-arm64) | 0.3.241 | SEE LICENSE IN LICENSE.md |
 | [`@anthropic-ai/claude-agent-sdk-win32-x64`](https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk-win32-x64) | 0.3.241 | SEE LICENSE IN LICENSE.md |
+
+
+## Owner-authorized MPL-2.0 runtime dependency
+
+The project owner authorizes the distribution of [`web-push`](https://www.npmjs.com/package/web-push) under its declared **MPL-2.0** terms as an unmodified, separately packaged runtime dependency of the Web shell's push-delivery surface. MPL-2.0 is file-level weak copyleft: the web-push sources remain MPL-2.0, and no web-push file is modified or vendored into the DeepSeek Harness sources. This authorization does not classify the terms as permissive and does not cover any other package; version or license changes still require the ordinary dependency, lockfile, compatibility, terms, and notices review.
 
 
 ## Development-only npm dependencies
@@ -166,6 +172,7 @@ External packages **directly declared** only by repository tooling, test infrast
 | [`@types/spdx-expression-parse`](https://github.com/DefinitelyTyped/DefinitelyTyped) | MIT |
 | [`@types/turndown`](https://github.com/DefinitelyTyped/DefinitelyTyped) | MIT |
 | [`@types/use-sync-external-store`](https://github.com/DefinitelyTyped/DefinitelyTyped) | MIT |
+| [`@types/web-push`](https://github.com/DefinitelyTyped/DefinitelyTyped) | MIT |
 | [`@types/ws`](https://github.com/DefinitelyTyped/DefinitelyTyped) | MIT |
 | [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react) | MIT |
 | [`@vitest/coverage-v8`](https://github.com/vitest-dev/vitest) | MIT |
