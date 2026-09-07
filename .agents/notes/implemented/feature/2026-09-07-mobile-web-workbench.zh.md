@@ -40,7 +40,7 @@ comm -12 /tmp/dsh-upstream-paths /tmp/dsh-fork-paths
 
 即使 Git 没有报告文本冲突，也必须检查这些语义热点：Client Modules 的启动文档与 revision 策略；浏览器 token/cookie 认证；Session Controller 的发送与重连投影；`packages/bundle/web-app/cordis.patch.yml`；`packages/client/ui-mobile/**`；`packages/client/ui-model-selection/**`；Client slot 目录；组装 Web 测试；生成目录、翻译 manifest 与 notices。
 
-relay 始终是仓库外的部署边界。源码构建的 DSH 服务保留既有 `DSH_HOME`；`ai.deepseek.dsh` 使用 `--trusted-host` 启动选定 checkout；`com.agenthub.dsh-relay` 持有反向隧道；`com.agenthub.dsh-token-sync` 通过 SSH 把当前 launch token 传给 relay；relay 认证服务在服务器内部把该 token 兑换成官方 DSH 浏览器 cookie。绝不能把 token 值、cookie、密码或会话数据复制进本仓库。upstream 若改变浏览器认证，必须先验证此兑换流程，才能暴露新构建。
+relay 始终是仓库外的部署边界。源码构建的 DSH 服务保留既有 `DSH_HOME`；`ai.deepseek.dsh` 使用 `--trusted-host` 启动选定 checkout；`com.agenthub.dsh-relay` 持有反向隧道；`com.agenthub.dsh-token-sync` 通过 SSH 把当前 launch token 传给 relay；relay 认证服务在服务器内部把该 token 兑换成官方 DSH 浏览器 cookie。私有 Web profile 的 package manifest 必须保留非空版本，hook 依赖也必须链接到所选 checkout；否则默认插件包清单会在模型发出请求前以 `REQUEST_EXTENSION` 失败。绝不能把 token 值、cookie、密码或会话数据复制进本仓库。upstream 若改变浏览器认证或请求扩展，必须先验证这些边界，才能暴露新构建。
 
 更新本标记前，重新运行定向移动端/模型测试、build、typecheck、lint、constraints、hygiene、文档同步、GUI 测试、组装 Web replay、复制 `DSH_HOME` 的重启测试，以及公网手机宽度的登录/加载/发送/刷新/重连 QA。无法执行的公网或设备检查应记录为 `NOT_RUN` 或 `UNKNOWN`，不能视为通过。
 
