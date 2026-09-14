@@ -68,6 +68,7 @@
 - button "Add files or run commands":
   - img
 - 'button "Access mode, current: Custom"': Custom
+- button "Subagent fixed model DeepSeek-V4-Flash; not switchable" [disabled]: DeepSeek-V4-Flash
 - button "6% of context used"
 - button "Send message" [disabled]
 - button "2 turns 2 steps · {{throughput}} tok/s":
