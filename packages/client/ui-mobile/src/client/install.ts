@@ -78,7 +78,7 @@ export class InstallController {
   private readonly onMedia = (): void => { this.setState({ mobile: this.media.matches }) }
   private readonly onPrompt = (event: Event): void => {
     if (this.isPromotionDismissed()) return
-    this.promptEvent = event as unknown as InstallPromptLike
+    this.promptEvent = event as Event & InstallPromptLike
     this.setState({ installable: true })
   }
   private promptEvent: InstallPromptLike | null = null

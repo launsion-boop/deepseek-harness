@@ -57,6 +57,15 @@ describe('web e2e: mobile shell and revision-safe PWA', () => {
     expect(await page.locator('[data-composer-tools]').count()).toBe(1)
     expect(await page.locator('[data-composer-modes]').count()).toBe(1)
     expect(await page.locator('[data-composer-trailing]').count()).toBe(1)
+    const editor = page.locator('[data-composer-input]')
+    expect(await editor.getAttribute('enterkeyhint')).toBe('send')
+    expect(await editor.evaluate(node => getComputedStyle(node).fontSize)).toBe('16px')
+    const overflowing = await page.locator('[data-composer-toolbar] button').evaluateAll(nodes => nodes
+      .filter((node) => {
+        const rect = node.getBoundingClientRect()
+        return rect.width > 0 && (rect.left < 0 || rect.right > innerWidth)
+      }).map(node => node.getAttribute('aria-label')))
+    expect(overflowing).toEqual([])
   })
 
   it('serves a push-only worker and reloads every current plugin revision', async () => {

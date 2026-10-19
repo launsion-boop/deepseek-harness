@@ -1,6 +1,43 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/client/ui-mobile/README.md
-README.md: 3f67cc85c64e66ea5285eed2b129a2ab94481253
-README.zh.md: 7da26cead5bed9cd3135c67dbeb0632ffc6c43f5
+/:
+  en: 9d90d84507816693
+  zh: 9e3ce41d351ef0f7
+/deepseek-ai-dsh-client-ui-mobile:
+  en: f074fe0e137c88f2
+  zh: 9e902ed844836e49
+/deepseek-ai-dsh-client-ui-mobile/summary:
+  en: 5527b35c677eb145
+  zh: 54bc5f80cc3d2f82
+/deepseek-ai-dsh-client-ui-mobile/table-of-contents:
+  en: d152484eb41ac6b4
+  zh: c996ac1bffa35256
+/deepseek-ai-dsh-client-ui-mobile/use-this-package:
+  en: 98b3afb6f3b23eee
+  zh: 28185ce40f89fb90
+/deepseek-ai-dsh-client-ui-mobile/use-this-package/when-to-choose-it:
+  en: d3ea95b2bb9844e1
+  zh: 9fb56e1e862e9ed6
+/deepseek-ai-dsh-client-ui-mobile/use-this-package/minimal-configuration:
+  en: fa4610432f9b9100
+  zh: a363271ba8c3c1d6
+/deepseek-ai-dsh-client-ui-mobile/understand-the-implementation:
+  en: 9d0edeb1690f1642
+  zh: 835ce9a0c30560b0
+/deepseek-ai-dsh-client-ui-mobile/further-exploration:
+  en: ce6fff2c1da49d24
+  zh: be181571e42639b7
+/deepseek-ai-dsh-client-ui-mobile/model-experience:
+  en: 56390919303b5bcc
+  zh: 13b57d950c79d84b
+/deepseek-ai-dsh-client-ui-mobile/model-experience/kv-cache-effect:
+  en: ca75c51c89c2c9b0
+  zh: 03603f6d68dcc631
+/deepseek-ai-dsh-client-ui-mobile/known-limitations-and-deferred-work:
+  en: 09bbd9e945ff6da7
+  zh: 51f057a13e8cedaf
+/deepseek-ai-dsh-client-ui-mobile/known-limitations-and-deferred-work/dev-note:
+  en: 97c6e4e7035ae0c6
+  zh: c8266f10eaf609a3

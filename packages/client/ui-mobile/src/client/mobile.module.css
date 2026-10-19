@@ -169,7 +169,8 @@
      composer and search fields keep their layout when focused. */
   [data-mobile-role='center'] input,
   [data-mobile-role='center'] textarea,
-  [data-mobile-role='center'] select {
+  [data-mobile-role='center'] select,
+  [data-mobile-role='center'] [data-composer-input] {
     font-size: 16px;
   }
 

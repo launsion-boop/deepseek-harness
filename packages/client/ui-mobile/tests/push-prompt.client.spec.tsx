@@ -27,7 +27,7 @@ function props(state: PushState, enable = vi.fn(async () => {})): PushPromptProp
     t: ((key: keyof typeof zh) => zh[key]) as PushPromptProps['t'],
     useSessions: vi.fn(),
     useWorkspaces: vi.fn(),
-  } as unknown as PushPromptProps
+  } as PushPromptProps
 }
 
 afterEach(() => {

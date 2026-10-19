@@ -12,7 +12,7 @@ import { DrawerScrim, type DrawerScrimInjected } from '../src/client/DrawerScrim
 import { InstallBanner, type InstallBannerInjected } from '../src/client/InstallBanner.tsx'
 import { PushPrompt } from '../src/client/PushPrompt.tsx'
 import { zh } from '../src/client/locales.ts'
-import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import { Context as ClientContext } from '@deepseek-ai/cordis'
 
 /** Build an AppFrame-shaped fixture; returns the frame element. */
 function mountFrame(attributes: { sidebarCollapsed?: boolean; rightbarCollapsed?: boolean } = {}): HTMLElement {
@@ -39,13 +39,13 @@ function makeCtx() {
   const disposers: Array<() => void> = []
   const slotDisposers: Array<() => void> = []
   const registrations: Registered[] = []
-  const ctx = {
+  const ctx = Object.assign(new ClientContext(), {
     layout,
     locale: {
       register: vi.fn(() => () => {}),
       bind: () => (key: keyof typeof zh) => zh[key],
     },
-    sessions: { open: vi.fn() },
+    uiWorkspace: { openSession: vi.fn() },
     effect(run: () => (() => void) | undefined): void {
       const disposer = run()
       if (disposer !== undefined) disposers.push(disposer)
@@ -60,7 +60,7 @@ function makeCtx() {
         return () => {}
       },
     },
-  } as unknown as ClientContext
+  })
   const byComponent = (component: unknown): unknown => {
     const factory = registrations.find(r => r.component === component)?.injectFactory
     return factory?.()
@@ -76,7 +76,7 @@ afterEach(() => {
 
 describe('ui-mobile apply', () => {
   it('declares the layout and slots service dependencies', () => {
-    expect(inject).toEqual(['layout', 'locale', 'slots', 'sessions'])
+    expect(inject).toEqual(['layout', 'locale', 'slots', 'uiWorkspace'])
   })
 
   it('registers menu buttons for sessions and new sessions, plus shell controls', () => {

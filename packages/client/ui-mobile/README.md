@@ -50,6 +50,9 @@ The plugin has no Cordis config fields. Web Push stays disabled unless all three
 
 The Host entry injects PWA metadata and the first-paint skeleton into the served document, serves the manifest, service worker, and push subscription endpoints, reuses the Web application's favicon, and sends completion notifications from durable `turn/end` events. The Client entry observes the assembled AppFrame, marks its sidebar, center, and rightbar roles with stable data attributes, and treats the rightbar as open when it owns either a nonzero track or the frame's fullscreen presentation. It installs the phone-only stylesheet and gestures, and contributes menu, scrim, install, and notification controls through existing slots. The service worker calls `skipWaiting()`, claims clients, handles push events, and deletes every legacy `dsh-ui-mobile-shell-*` cache; it deliberately has no `fetch` handler because Client plugin URLs contain a process revision and an old boot document cannot safely address a restarted Host.
 
+
+The phone keyboard presenter marks the Conversation editor at `[data-composer-input][contenteditable="true"][role="textbox"]` with `enterkeyhint="send"`, including editors enabled after mounting. The stylesheet keeps this contenteditable input at 16 px to retain the iOS focus-zoom protection.
+
 </details>
 
 -----

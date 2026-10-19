@@ -18,11 +18,11 @@ function makeProps(overrides: Partial<DrawerScrimProps> = {}): DrawerScrimProps 
     snapshot: () => defaultState,
     t: ((key: keyof typeof zh) => zh[key]) as DrawerScrimProps['t'],
     useSessions: ((selector: (s: { current?: string }) => unknown) =>
-      selector({ current: 's1' })) as unknown as DrawerScrimProps['useSessions'],
+      selector({ current: 's1' })) as DrawerScrimProps['useSessions'],
     useWorkspaces: ((selector: (s: unknown) => unknown) =>
-      selector({ items: [] })) as unknown as DrawerScrimProps['useWorkspaces'],
+      selector({ items: [] })) as DrawerScrimProps['useWorkspaces'],
     ...overrides,
-  } as unknown as DrawerScrimProps
+  } as DrawerScrimProps
 }
 
 afterEach(() => {

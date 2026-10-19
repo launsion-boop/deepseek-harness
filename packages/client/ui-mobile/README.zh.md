@@ -50,6 +50,9 @@ kind: "package-reference"
 
 Host 配置项把 PWA 元数据和首屏骨架注入已服务的文档，提供 manifest、service worker 与推送订阅端点，复用 Web 应用的 favicon，并从持久 `turn/end` 事件发送完成通知。Client 配置项观察组装后的 AppFrame，用稳定数据属性标注 sidebar、center 与 rightbar 角色；rightbar 拥有非零 track 或 frame 的 fullscreen 展示时，都视为已打开。它安装仅限手机的样式与手势，并通过既有 slot 贡献菜单、遮罩、安装和通知控件。service worker 调用 `skipWaiting()`、接管客户端、处理推送事件，并删除所有旧 `dsh-ui-mobile-shell-*` 缓存；它特意不注册 `fetch` handler，因为 Client 插件 URL 含进程 revision，旧启动文档无法安全访问已重启的 Host。
 
+
+手机键盘提示器为 Conversation 中的 `[data-composer-input][contenteditable="true"][role="textbox"]` 编辑器设置 `enterkeyhint="send"`，也覆盖挂载后才启用的编辑器。样式表将该可编辑输入区保持为 16 px，延续 iOS 聚焦时的防缩放保护。
+
 </details>
 
 -----

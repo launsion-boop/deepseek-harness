@@ -20,17 +20,17 @@ function makeProps(overrides: Partial<HeaderMenuButtonProps> = {}): HeaderMenuBu
     // header.actions is a session-scope slot: the framework session kit
     // (useSession/sessionId/useProjection/useInput/inputActions) and the
     // global seat (useSessions/useWorkspaces) are required.
-    useSession: ((selector: (s: unknown) => unknown) => selector({})) as unknown as HeaderMenuButtonProps['useSession'],
-    sessionId: 's1' as unknown as HeaderMenuButtonProps['sessionId'],
-    useProjection: (() => undefined) as unknown as HeaderMenuButtonProps['useProjection'],
-    useInput: (() => undefined) as unknown as HeaderMenuButtonProps['useInput'],
-    inputActions: {} as unknown as HeaderMenuButtonProps['inputActions'],
+    useSession: ((selector: (s: unknown) => unknown) => selector({})) as HeaderMenuButtonProps['useSession'],
+    sessionId: 's1' as HeaderMenuButtonProps['sessionId'],
+    useProjection: (() => undefined) as HeaderMenuButtonProps['useProjection'],
+    useInput: (() => undefined) as HeaderMenuButtonProps['useInput'],
+    inputActions: {} as HeaderMenuButtonProps['inputActions'],
     useSessions: ((selector: (s: { current?: string }) => unknown) =>
-      selector({ current: 's1' })) as unknown as HeaderMenuButtonProps['useSessions'],
+      selector({ current: 's1' })) as HeaderMenuButtonProps['useSessions'],
     useWorkspaces: ((selector: (s: unknown) => unknown) =>
-      selector({ items: [] })) as unknown as HeaderMenuButtonProps['useWorkspaces'],
+      selector({ items: [] })) as HeaderMenuButtonProps['useWorkspaces'],
     ...overrides,
-  } as unknown as HeaderMenuButtonProps
+  } as HeaderMenuButtonProps
 }
 
 afterEach(() => {

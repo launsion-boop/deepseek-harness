@@ -20,10 +20,10 @@ service worker 持有安装激活、通知投递和通知点击路由。它不�
 
 ## 本地 fork 的 upstream 适配地图
 
-本节是 `leilangsheng/deepseek-harness` fork 的持续维护标记。每次订阅 upstream 后重写这份快照，不追加第二份迁移流水账。
+本节是 `launsion-boop/deepseek-harness` fork 的持续维护标记。每次订阅 upstream 后重写这份快照，不追加第二份迁移流水账。
 
-- **Upstream 基线：** `deepseek-ai/deepseek-harness@c291e7961a515f6d7af9304e7fd1d257929aef26`。
-- **Fork 基线：** `4fccc03c687685ae6975b46b143e580dbc380e85`；回滚标签 `dsh-local-pre-upstream-20260914` 保留本次订阅前的 tip。
+- **Upstream 基线：** `deepseek-ai/deepseek-harness` release `dsh-v0.2.1-rc.2`。
+- **Fork 基线：** `codex/dsh-local-pre-upgrade-20261019`；回滚分支 `codex/dsh-local-pre-upgrade-20261019` 保留本次订阅前的 tip。
 - **Fork 持有的产品表层：** `packages/client/ui-mobile/**`、它在 `dsh-web-app` 中的组合项、手机组装测试，以及 `packages/client/ui-model-selection/**` 中 addressed subagent 的只读模型座位。
 - **Upstream 持有的模型与可靠性表层：** `deepseek-flash` / `DeepSeek-V41-Flash` 目录项、图片与 in-history system prompt 元数据、发送同步回显及其持久替换、请求幂等、重连与退避、历史补洞、持久 inbox 恢复。upstream 改动这些契约时，不恢复 fork 中已被替代的旧实现。
 - **必须保持的不变量：** V41 Flash 目录使用 upstream 元数据，不受旧版显式 settings override 降级；手机布局只在 640 px 以下生效；已安装 iOS 使用安全区放置；service worker 不注册 `fetch` handler，并删除旧 `dsh-ui-mobile-shell-*` 缓存；addressed subagent 显示模型身份但不启用模型选择；部署 authority 始终留在产品 bundle 之外。
@@ -31,8 +31,9 @@ service worker 持有安装激活、通知投递和通知点击路由。它不�
 下一次订阅的第一轮语义冲突检查，是从已记录基线出发，将 upstream 与 fork 各自触碰的路径排序后求交集：
 
 ```sh
-git fetch origin master fork master --tags
-base=c291e7961a515f6d7af9304e7fd1d257929aef26
+git fetch origin master --tags
+git fetch fork master
+base=dsh-v0.2.1-rc.2
 git diff --name-only "$base"..origin/master | sort > /tmp/dsh-upstream-paths
 git diff --name-only "$base"..fork/master | sort > /tmp/dsh-fork-paths
 comm -12 /tmp/dsh-upstream-paths /tmp/dsh-fork-paths

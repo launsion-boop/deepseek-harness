@@ -21,6 +21,7 @@ import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
 import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type {} from '@deepseek-ai/dsh-client-ui-session/client'
+import type {} from '@deepseek-ai/dsh-client-ui-workspace/client'
 import { MobileFrameController } from './frame.ts'
 import { EdgeSwipeController } from './edge-swipe.ts'
 import { InstallController } from './install.ts'
@@ -57,7 +58,7 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
 const NS = 'mobile'
 
 /** Required services: the layout panel actions and the slot registry. */
-export const inject = ['layout', 'locale', 'slots', 'sessions']
+export const inject = ['layout', 'locale', 'slots', 'uiWorkspace']
 
 /**
  * Client plugin body: register the app-shell service worker, start the frame
@@ -72,7 +73,7 @@ export function apply(ctx: ClientContext): void {
   const controller = new MobileFrameController()
   const edgeSwipe = new EdgeSwipeController(controller, () => { ctx.layout.toggleSidebar() })
   const install = new InstallController()
-  const push = new PushController((sessionId) => { ctx.sessions.open(sessionId as SessionId) })
+  const push = new PushController((sessionId) => { ctx.uiWorkspace.openSession(sessionId as SessionId) })
   ctx.effect(() => {
     controller.start()
     edgeSwipe.start()

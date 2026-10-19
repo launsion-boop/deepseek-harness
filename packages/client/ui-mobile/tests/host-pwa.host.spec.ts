@@ -5,10 +5,11 @@
  * removal of caches left by older mobile builds).
  */
 import { describe, expect, it, vi } from 'vitest'
-import type { IncomingMessage, ServerResponse } from 'node:http'
+import { IncomingMessage, ServerResponse } from 'node:http'
+import { Socket } from 'node:net'
 import { runInNewContext } from 'node:vm'
 import { apply, buildServiceWorkerScript } from '../src/index.ts'
-import type { Context } from '@deepseek-ai/cordis'
+import { Context } from '@deepseek-ai/cordis'
 
 /** Collect what a handler wrote. */
 class FakeRes {
@@ -17,16 +18,19 @@ class FakeRes {
   status = 200
   headers: Record<string, string> | undefined
   body: unknown
+  readonly response = Object.assign(new ServerResponse(fakeReq('GET', '/')), {
+    writeHead: this.writeHead, end: this.end,
+  })
 }
 
 function fakeReq(method: string, url: string): IncomingMessage {
-  return { method, url } as IncomingMessage
+  return Object.assign(new IncomingMessage(new Socket()), { method, url })
 }
 
 function makeCtx() {
   const taps: Array<(html: string) => string> = []
   const routes: Array<{ path: string; handler: (req: IncomingMessage, res: ServerResponse) => Promise<void> | void }> = []
-  const ctx = {
+  const ctx = Object.assign(new Context(), {
     on: vi.fn(() => () => {}),
     inject(services: string[], callback: (scope: unknown) => void): void {
       if (services.includes('webServer')) callback({
@@ -43,7 +47,7 @@ function makeCtx() {
         },
       })
     },
-  } as unknown as Context
+  })
   return { ctx, taps, routes }
 }
 
@@ -153,7 +157,7 @@ describe('ui-mobile host half', () => {
 
   it('serves the manifest JSON at /pwa/manifest.webmanifest', async () => {
     const res = new FakeRes()
-    await handlerFor('/pwa')(fakeReq('GET', '/pwa/manifest.webmanifest'), res as unknown as ServerResponse)
+    await handlerFor('/pwa')(fakeReq('GET', '/pwa/manifest.webmanifest'), res.response)
     expect(res.writeHead).toHaveBeenCalledWith(200, expect.objectContaining({ 'content-type': 'application/manifest+json; charset=utf-8' }))
     const body: unknown = JSON.parse(String(res.body))
     expect(body).toMatchObject({
@@ -165,19 +169,19 @@ describe('ui-mobile host half', () => {
 
   it('404s unknown /pwa/ paths', async () => {
     const res = new FakeRes()
-    await handlerFor('/pwa')(fakeReq('GET', '/pwa/nope'), res as unknown as ServerResponse)
+    await handlerFor('/pwa')(fakeReq('GET', '/pwa/nope'), res.response)
     expect(res.writeHead).toHaveBeenCalledWith(404)
   })
 
   it('rejects non-GET methods with 405', async () => {
     const res = new FakeRes()
-    await handlerFor('/pwa')(fakeReq('POST', '/pwa/manifest.webmanifest'), res as unknown as ServerResponse)
+    await handlerFor('/pwa')(fakeReq('POST', '/pwa/manifest.webmanifest'), res.response)
     expect(res.writeHead).toHaveBeenCalledWith(405)
   })
 
   it('serves the service worker script at /sw.js', async () => {
     const res = new FakeRes()
-    await handlerFor('/sw.js')(fakeReq('GET', '/sw.js'), res as unknown as ServerResponse)
+    await handlerFor('/sw.js')(fakeReq('GET', '/sw.js'), res.response)
     expect(res.writeHead).toHaveBeenCalledWith(200, expect.objectContaining({ 'content-type': 'text/javascript; charset=utf-8' }))
     expect(String(res.body)).not.toContain("self.addEventListener('fetch'")
     expect(String(res.body)).toContain("self.addEventListener('install'")
@@ -185,7 +189,7 @@ describe('ui-mobile host half', () => {
 
   it('rejects non-GET methods on /sw.js with 405', async () => {
     const res = new FakeRes()
-    await handlerFor('/sw.js')(fakeReq('POST', '/sw.js'), res as unknown as ServerResponse)
+    await handlerFor('/sw.js')(fakeReq('POST', '/sw.js'), res.response)
     expect(res.writeHead).toHaveBeenCalledWith(405)
   })
 

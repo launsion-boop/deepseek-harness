@@ -1,6 +1,22 @@
-# Bilingual-pair consistency record (docs/i18n/README.md): the git blob hash of each
-# side as of the last confirmed-consistent state. Both languages carry equal authority;
-# after editing either side, bring the other along and re-record with:
+# Bilingual-pair consistency record for 2026-09-07-mobile-web-workbench.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/implemented/feature/2026-09-07-mobile-web-workbench.md
-2026-09-07-mobile-web-workbench.md: 2d6150f2d2967f5bba8762ebfbbd615f9cd70bb6
-2026-09-07-mobile-web-workbench.zh.md: 6dd57a0e438051c3e19b4dd60f37a03a66d9704b
+/agent-note-mobile-web-workbench-and-revision-safe-pwa:
+  en: eef169e1744512bb
+  zh: 5d2b53a100e1bb16
+/agent-note-mobile-web-workbench-and-revision-safe-pwa/problem:
+  en: 24cce25a7117a3ff
+  zh: 3c6894b146b66fba
+/agent-note-mobile-web-workbench-and-revision-safe-pwa/decision:
+  en: 7653a25a99b975e4
+  zh: edef13eb79c51e0c
+/agent-note-mobile-web-workbench-and-revision-safe-pwa/local-fork-upstream-adaptation-map:
+  en: 2ca1558a4cd8922f
+  zh: 0c8531df6c23f319
+/agent-note-mobile-web-workbench-and-revision-safe-pwa/alternatives-considered:
+  en: 9a56760918762946
+  zh: 31b94cbc69723918
+/agent-note-mobile-web-workbench-and-revision-safe-pwa/consequences:
+  en: 8735c2139fe6e06c
+  zh: bbb18bb3a1267b45

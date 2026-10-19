@@ -6,7 +6,7 @@
  * inject face (toggle + the frame controller's subscribe/snapshot pair).
  */
 import { useEffect, useState } from 'react'
-import { IconPanelLeftOutline16 } from '@deepseek-ai/dsh-client-ui-primitives'
+import { IconPanelLeftOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
 import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
 import type { PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import type { MobileNavState } from './frame.ts'
@@ -41,7 +41,7 @@ export function HeaderMenuButton({ toggleSidebar, subscribe, snapshot, t }: Head
       aria-label={t('menu.aria')}
       onClick={toggleSidebar}
     >
-      <IconPanelLeftOutline16 />
+      <IconPanelLeftOutlineRegular />
     </button>
   )
 }

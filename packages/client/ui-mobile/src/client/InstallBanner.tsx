@@ -9,8 +9,8 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  IconCloseOutline16,
-  IconDownloadOutline16,
+  IconCloseOutlineRegular,
+  IconDownloadOutlineRegular,
 } from '@deepseek-ai/dsh-client-ui-primitives'
 import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
 import type { PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
@@ -44,7 +44,7 @@ export function InstallBanner({ snapshot, subscribe, install, dismissInstallProm
   if (state.installable) {
     return createPortal(
       <div className={css.banner} role="region" aria-label={t('install.region')}>
-        <IconDownloadOutline16 />
+        <IconDownloadOutlineRegular />
         <div className={css.copy}>
           <strong>{t('install.title')}</strong>
           <span>{t('install.description')}</span>
@@ -53,7 +53,7 @@ export function InstallBanner({ snapshot, subscribe, install, dismissInstallProm
           {t('install.action')}
         </button>
         <button type="button" className={css.iconButton} aria-label={t('install.dismiss')} onClick={dismissInstallPromotion}>
-          <IconCloseOutline16 />
+          <IconCloseOutlineRegular />
         </button>
       </div>, document.body,
     )
@@ -61,13 +61,13 @@ export function InstallBanner({ snapshot, subscribe, install, dismissInstallProm
   if (state.iosHintVisible) {
     return createPortal(
       <div className={css.banner} role="region" aria-label={t('install.iosRegion')}>
-        <IconDownloadOutline16 />
+        <IconDownloadOutlineRegular />
         <div className={css.copy}>
           <strong>{t('install.iosTitle')}</strong>
           <span>{t('install.iosDescription')}</span>
         </div>
         <button type="button" className={css.iconButton} aria-label={t('install.dismiss')} onClick={dismissInstallPromotion}>
-          <IconCloseOutline16 />
+          <IconCloseOutlineRegular />
         </button>
       </div>, document.body,
     )

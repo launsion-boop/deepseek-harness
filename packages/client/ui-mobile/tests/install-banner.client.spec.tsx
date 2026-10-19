@@ -19,11 +19,11 @@ function makeProps(overrides: Partial<InstallBannerProps> = {}): InstallBannerPr
     dismissInstallPromotion: vi.fn(),
     t: ((key: keyof typeof zh) => zh[key]) as InstallBannerProps['t'],
     useSessions: ((selector: (s: { current?: string }) => unknown) =>
-      selector({ current: 's1' })) as unknown as InstallBannerProps['useSessions'],
+      selector({ current: 's1' })) as InstallBannerProps['useSessions'],
     useWorkspaces: ((selector: (s: unknown) => unknown) =>
-      selector({ items: [] })) as unknown as InstallBannerProps['useWorkspaces'],
+      selector({ items: [] })) as InstallBannerProps['useWorkspaces'],
     ...overrides,
-  } as unknown as InstallBannerProps
+  } as InstallBannerProps
 }
 
 afterEach(() => {

@@ -20,10 +20,10 @@ The public relay authority is deployment configuration. A relay launch passes `-
 
 ## Local fork upstream adaptation map
 
-This section is the maintained marker for the `leilangsheng/deepseek-harness` fork. Rewrite this snapshot after every upstream subscription; do not append a second migration log.
+This section is the maintained marker for the `launsion-boop/deepseek-harness` fork. Rewrite this snapshot after every upstream subscription; do not append a second migration log.
 
-- **Upstream baseline:** `deepseek-ai/deepseek-harness@c291e7961a515f6d7af9304e7fd1d257929aef26`.
-- **Fork base:** `4fccc03c687685ae6975b46b143e580dbc380e85`; rollback tag `dsh-local-pre-upstream-20260914` retains that pre-subscription tip.
+- **Upstream baseline:** `deepseek-ai/deepseek-harness` release `dsh-v0.2.1-rc.2`.
+- **Fork base:** `codex/dsh-local-pre-upgrade-20261019`; rollback branch `codex/dsh-local-pre-upgrade-20261019` retains that pre-subscription tip.
 - **Fork-owned product surfaces:** `packages/client/ui-mobile/**`, its `dsh-web-app` bundle row, phone assembly tests, and the addressed-subagent read-only model badge in `packages/client/ui-model-selection/**`.
 - **Upstream-owned model and reliability surfaces:** the `deepseek-flash` / `DeepSeek-V41-Flash` catalog entry, image and in-history system-prompt metadata, synchronous submission echo and durable replacement, request idempotency, reconnect/backoff, history repair, and durable inbox recovery. Do not restore the fork's superseded implementations when upstream changes these contracts.
 - **Required invariants:** the V41 Flash catalog keeps upstream metadata instead of an older explicit settings override; phone layout applies only below 640 px; installed iOS uses safe-area placement; the service worker has no `fetch` handler and removes legacy `dsh-ui-mobile-shell-*` caches; addressed subagents expose model identity without enabling model selection; deployment authorities remain outside the product bundle.
@@ -31,8 +31,9 @@ This section is the maintained marker for the `leilangsheng/deepseek-harness` fo
 The first semantic-conflict pass for the next subscription is the sorted intersection of upstream-touched and fork-touched paths from the recorded baseline:
 
 ```sh
-git fetch origin master fork master --tags
-base=c291e7961a515f6d7af9304e7fd1d257929aef26
+git fetch origin master --tags
+git fetch fork master
+base=dsh-v0.2.1-rc.2
 git diff --name-only "$base"..origin/master | sort > /tmp/dsh-upstream-paths
 git diff --name-only "$base"..fork/master | sort > /tmp/dsh-fork-paths
 comm -12 /tmp/dsh-upstream-paths /tmp/dsh-fork-paths

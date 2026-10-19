@@ -5,7 +5,7 @@
  */
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { IconPanelLeftOutline16 } from '@deepseek-ai/dsh-client-ui-primitives'
+import { IconPanelLeftOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
 import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
 import type { PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import type { MobileNavState } from './frame.ts'
@@ -24,7 +24,10 @@ export function NewSessionMenuButton({
   toggleSidebar, subscribe, snapshot, useSessions, t,
 }: NewSessionMenuButtonProps) {
   const [state, setState] = useState<MobileNavState>(() => snapshot())
-  const showForBlankSession = useSessions(s => s.current === undefined || s.byId[s.current]?.blank === true)
+  const showForBlankSession = useSessions((s) => {
+    const current = Object.values(s.byId).find(session => (session.retainedBy.mainView ?? 0) > 0)
+    return current === undefined || current.blank
+  })
   useEffect(() => subscribe(() => { setState(snapshot()) }), [subscribe, snapshot])
   if (!state.mobile || !showForBlankSession || typeof document === 'undefined') return null
   return createPortal(
@@ -35,7 +38,7 @@ export function NewSessionMenuButton({
       aria-label={t('menu.aria')}
       onClick={toggleSidebar}
     >
-      <IconPanelLeftOutline16 />
+      <IconPanelLeftOutlineRegular />
     </button>,
     document.body,
   )
