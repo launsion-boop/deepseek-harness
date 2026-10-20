@@ -19,6 +19,13 @@ const configWith = (model: Record<string, unknown>): (() => unknown) =>
   routeWith({ models: [{ id: 'm', ...model }] })
 
 describe('reasoning schema boundary', () => {
+  it('validates the Anthropic gateway effort-message compatibility switch', () => {
+    const make = (value: boolean) => Config({ providers: { anthropic: { compat: { supportsMidConvoEffort: value } } } })
+    expect(make(false).providers.get()?.anthropic?.compat?.supportsMidConvoEffort).toBe(false)
+    expect(make(true).providers.get()?.anthropic?.compat?.supportsMidConvoEffort).toBe(true)
+    expect(configWith({ compat: { supportsMidConvoEffort: 'false' } })).toThrow()
+  })
+
   it('accepts an empty provider section and propagates unexpected catalog failures', () => {
     expect(() => { assertServiceable({}) }).not.toThrow()
     const failure = new TypeError('model metadata lookup failed')

@@ -1,11 +1,12 @@
 /** Capability-driven transcript updates through the real pi-ai serializers and shared runtime. */
 import { afterEach, describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
-import LlmRuntime, { createAssistantMessage, createDeveloperMessage, createMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import LlmRuntime, { createAssistantMessage, createDeveloperMessage, createMessage, createUserMessage, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
 import type { GenerateOptions, ToolSchema, ToolUpdate } from '@deepseek-ai/dsh-llm'
 import * as LlmPiAi from '@deepseek-ai/dsh-llm-pi-ai'
 import type { Api, Model } from '@earendil-works/pi-ai'
 import { resolveProfiles } from '../src/config.ts'
+import type { PiAiCompatProfile } from '../src/catalog.ts'
 import { memoryAuth } from './auth-double.ts'
 import { conversationUpdates } from '../src/models.ts'
 import { assemble } from './assemble.ts'
@@ -52,7 +53,7 @@ describe('conversation capability mapping', () => {
 
 afterEach(closeMockServers)
 
-async function send(provider: string, modelId: string, options: Omit<GenerateOptions, 'provider' | 'model'>, apiKey = 'fixture-key') {
+async function send(provider: string, modelId: string, options: Omit<GenerateOptions, 'provider' | 'model'>, apiKey = 'fixture-key', compat?: PiAiCompatProfile) {
   const server = await mockServer([{ status: 401, body: JSON.stringify({ error: { message: 'fixture rejection' } }) }])
   const ctx = new Context()
   const runtime = ctx.plugin(LlmRuntime)
@@ -60,7 +61,7 @@ async function send(provider: string, modelId: string, options: Omit<GenerateOpt
     await runtime
     // The serializer requires an API key even though the local server does not authenticate.
     const adapter = new LlmPiAi.PiAiAdapter({
-      profiles: () => resolveProfiles({ [provider]: { baseURL: server.url, apiKeyEnv: 'PI_CONVERSATION_TEST_KEY', transport: 'sse' } }),
+      profiles: () => resolveProfiles({ [provider]: { baseURL: server.url, apiKeyEnv: 'PI_CONVERSATION_TEST_KEY', transport: 'sse', ...compat === undefined ? {} : { compat } } }),
       resolveApiKey: () => Promise.resolve(apiKey),
       auth: memoryAuth(),
     })
@@ -79,6 +80,40 @@ const addition = () => createDeveloperMessage({ source: { kind: 'tool-registry' 
 ] })
 
 describe('serialized conversation updates', () => {
+  it.each(['high', 'max'] as const)('uses request-level %s effort without empty Anthropic system messages', async (effort) => {
+    const update = addition()
+    const { requests } = await send('anthropic', 'claude-opus-5-5', {
+      messages: [system('initial'), user('first'),
+        createAssistantMessage({ source: { provider: 'anthropic', model: 'claude-opus-5-5' }, content: [{ type: 'text', text: 'answer' }] }),
+        system('updated prompt'), user('next'), update],
+      tools: [baseline, added], toolHistory: { tools: [baseline], updates: [{ messageId: update.id, additions: [added] }] },
+      reasoningEffort: ReasoningEffortId(effort),
+    }, 'fixture-key', { supportsMidConvoEffort: false })
+    expect(requests).toHaveLength(1)
+    const request = requests[0] as { messages: { role: string; content: unknown }[]; betas?: string[] }
+    expect(request).toMatchObject({
+      system: [{ type: 'text', text: 'initial' }],
+      output_config: { effort },
+    })
+    const systemMessages = request.messages.filter(message => message.role === 'system')
+    expect(systemMessages).toHaveLength(2)
+    expect(systemMessages[0]).toMatchObject({ role: 'system', content: [{ type: 'text', text: 'updated prompt' }] })
+    expect(systemMessages[1]).toMatchObject({ role: 'system', content: [
+      { type: 'text', text: 'Instruction one.\nInstruction two.' },
+      { type: 'tool_addition', tool: { type: 'tool_definition', definition: { name: 'search', description: added.description, input_schema: added.parameters } } },
+    ] })
+    expect(request.messages.filter(message => message.role === 'system' && Array.isArray(message.content) && message.content.length === 0)).toEqual([])
+    expect(request.betas?.some(beta => beta.includes('mid-conversation-output-config')) ?? false).toBe(false)
+  })
+
+  it('keeps native Opus effort updates enabled without a gateway override', async () => {
+    const { requests } = await send('anthropic', 'claude-opus-5-5', {
+      messages: [system('initial'), user('first')], reasoningEffort: ReasoningEffortId('high'),
+    })
+    const request = requests[0] as { messages: unknown[] }
+    expect(request.messages.at(-1)).toEqual({ role: 'system', content: [], output_config: { effort: 'high' } })
+  })
+
   it.each(['anthropic', 'openai'] as const)('omits an empty initial prompt while retaining the later update through %s', async (provider) => {
     const modelId = provider === 'anthropic' ? 'claude-opus-4-8' : 'gpt-5.4'
     const { requests } = await send(provider, modelId, {

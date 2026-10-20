@@ -281,6 +281,7 @@ const compatProfile: z<PiAiCompatProfile> = z.object({
   supportsTemperature: z.boolean(),
   forceAdaptiveThinking: z.boolean(),
   allowEmptySignature: z.boolean(),
+  supportsMidConvoEffort: z.boolean(),
   supportsStrictTools: z.boolean(),
 })
 

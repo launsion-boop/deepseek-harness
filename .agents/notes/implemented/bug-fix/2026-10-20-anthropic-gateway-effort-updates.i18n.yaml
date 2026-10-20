@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for 2026-10-20-anthropic-gateway-effort-updates.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/implemented/bug-fix/2026-10-20-anthropic-gateway-effort-updates.md
+/agent-note-anthropic-gateway-effort-update-compatibility:
+  en: daf0980ba6c263ec
+  zh: 1979b334d5c57c49
+/agent-note-anthropic-gateway-effort-update-compatibility/problem:
+  en: 2f6d3d151f1c50db
+  zh: 75227ae00516aa0c
+/agent-note-anthropic-gateway-effort-update-compatibility/decision:
+  en: 6c7abb1b5c180602
+  zh: 67f6747ca206bc36
+/agent-note-anthropic-gateway-effort-update-compatibility/alternatives-considered:
+  en: 340f0cdc6b4c63f3
+  zh: 907a81a7681083c2
+/agent-note-anthropic-gateway-effort-update-compatibility/consequences:
+  en: dbb8dc2b17009f99
+  zh: 74e8ec2ae0842a7f

@@ -302,7 +302,7 @@ const ANTHROPIC_COMPAT_GATE = {
   sessionAffinityFormat: 'withhold',
   supportsMidConvoSystemMessages: 'withhold',
   supportsMidConvoToolChanges: 'withhold',
-  supportsMidConvoEffort: 'withhold',
+  supportsMidConvoEffort: 'offer',
   allowedFallbackModels: 'withhold',
 } as const satisfies Record<keyof AnthropicMessagesCompat, CompatDisposition>
 
@@ -455,6 +455,8 @@ export interface PiAiCompatProfile {
   forceAdaptiveThinking?: boolean
   /** Whether to replay an empty thinking signature instead of converting thinking to text; `anthropic-messages`. */
   allowEmptySignature?: boolean
+  /** Whether the endpoint accepts effort-only system messages; false sends current effort at request level. `anthropic-messages`. */
+  supportsMidConvoEffort?: boolean
   /** Whether the endpoint accepts Anthropic strict tool schemas; `anthropic-messages`. */
   supportsStrictTools?: boolean
 }

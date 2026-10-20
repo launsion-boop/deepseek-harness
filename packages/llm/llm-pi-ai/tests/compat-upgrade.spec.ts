@@ -31,6 +31,10 @@ describe('pi-ai gateway compatibility declarations', () => {
     expect(resolved({ [field]: value })).toMatchObject({ [field]: value })
   })
 
+  it.each([false, true])('offers the Anthropic effort-message switch: %s', (value) => {
+    expect(resolved({ supportsMidConvoEffort: value }, 'anthropic-messages')).toMatchObject({ supportsMidConvoEffort: value })
+  })
+
   it.each([
     { thinkingTokenBudgetField: 'unknown' },
     { vllmPriority: 'high' },
@@ -51,7 +55,7 @@ describe('pi-ai gateway compatibility declarations', () => {
   })
 
   it.each([
-    'supportsMidConvoEffort', 'allowedFallbackModels', 'supportsMidConvoSystemMessages',
+    'allowedFallbackModels', 'supportsMidConvoSystemMessages',
     'supportsMidConvoToolAdditions', 'supportsMidConvoToolChanges', 'sessionAffinityFormat',
   ])('withholds catalog-owned %s', (field) => {
     expect(() => resolved({ [field]: true }, 'anthropic-messages'))
